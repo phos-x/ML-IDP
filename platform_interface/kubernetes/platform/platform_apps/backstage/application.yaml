@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: backstage-portal
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://backstage.github.io/charts'
+    targetRevision: 1.5.x # Always pin Helm versions
+    chart: backstage
+    helm:
+      valueFiles:
+        # ArgoCD pulls this values file from YOUR repo, not the Helm repo
+        - $values/kubernetes/platform/backstage/values.yaml
+  sources:
+    # This clever ArgoCD trick allows you to use a public Helm chart 
+    # but feed it a values.yaml file from your private Git repository.
+    - repoURL: 'https://github.com/YOUR_ORG/YOUR_REPO.git'
+      targetRevision: main
+      ref: values
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: backstage-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

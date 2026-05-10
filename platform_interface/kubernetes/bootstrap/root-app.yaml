@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform-root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/YOUR_ORG/YOUR_REPO.git' # UPDATE THIS
+    targetRevision: main
+    path: kubernetes/platform # ArgoCD will read everything in this directory
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

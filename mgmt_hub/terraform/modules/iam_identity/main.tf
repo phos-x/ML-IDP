@@ -1,6 +1,3 @@
-# --- 1. GitHub OIDC Provider ---
-# This allows AWS to trust tokens issued by GitHub Actions
-
 data "tls_certificate" "github" {
   url = "https://token.actions.githubusercontent.com"
 }
@@ -10,9 +7,6 @@ resource "aws_iam_openid_connect_provider" "github" {
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.github.certificates[0].sha1_fingerprint]
 }
-
-# --- 2. GitHub Actions CI/CD Role ---
-# The role assumed by your pipeline to deploy Layer 1
 
 resource "aws_iam_role" "github_actions" {
   name = "${var.project_name}-${var.environment}-github-actions-role"
@@ -39,15 +33,10 @@ resource "aws_iam_role" "github_actions" {
   })
 }
 
-# Administrative policy for the Platform CI/CD
 resource "aws_iam_role_policy_attachment" "github_actions_admin" {
   role       = aws_iam_role.github_actions.name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess" 
 }
-
-# --- 3. Crossplane Management Role ---
-# Used by Crossplane in Layer 2 to provision SageMaker/S3/Bedrock
-# This uses the new EKS Pod Identity trust relationship
 
 resource "aws_iam_role" "crossplane" {
   name = "${var.project_name}-${var.environment}-crossplane-role"
@@ -69,7 +58,6 @@ resource "aws_iam_role" "crossplane" {
   })
 }
 
-# Scoped policy for Crossplane (Mastery: Don't give it Admin)
 resource "aws_iam_policy" "crossplane_provider_aws" {
   name        = "${var.project_name}-${var.environment}-crossplane-policy"
   description = "Permissions for Crossplane to manage ML resources"
@@ -95,3 +83,33 @@ resource "aws_iam_role_policy_attachment" "crossplane_attach" {
   role       = aws_iam_role.crossplane.name
   policy_arn = aws_iam_policy.crossplane_provider_aws.arn
 }
+
+# --- External Secrets Operator (ESO) Identity ---
+resource "aws_iam_role" "external_secrets" {
+  name = "${var.project_name}-eso-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Principal = { Service = "pods.eks.amazonaws.com" },
+      Action = ["sts:AssumeRole", "sts:TagSession"]
+    }]
+  })
+}
+
+# Scoped to strictly read Secrets Manager
+resource "aws_iam_role_policy" "eso_policy" {
+  name = "eso-secrets-manager-read"
+  role = aws_iam_role.external_secrets.id
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Action = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"],
+      Resource = "arn:aws:secretsmanager:${var.aws_region}:${var.account_id}:secret:${var.project_name}-*"
+    }]
+  })
+}
+
+
+

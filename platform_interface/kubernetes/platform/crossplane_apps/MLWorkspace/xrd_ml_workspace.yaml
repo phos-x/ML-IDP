@@ -1,0 +1,32 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xmlworkspaces.platform.myorg.io
+spec:
+  group: platform.myorg.io
+  names:
+    kind: XMLWorkspace
+    plural: xmlworkspaces
+  # This is the "Claim" that Backstage will actually use
+  claimNames:
+    kind: MLWorkspace
+    plural: mlworkspaces
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                # The parameters Backstage asks the user for
+                teamName:
+                  type: string
+                enableSageMaker:
+                  type: boolean
+                  default: true
+              required:
+                - teamName

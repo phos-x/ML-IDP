@@ -1,0 +1,54 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: ml-workspace-template
+  title: New ML Project Environment
+  description: Provisions an isolated vcluster and AWS ML resources (SageMaker/S3).
+spec:
+  owner: platform-team
+  type: service
+
+  # 1. The Form UI
+  parameters:
+    - title: Project Details
+      required:
+        - teamName
+      properties:
+        teamName:
+          title: Team Name
+          type: string
+          description: Unique name for your team (e.g., stem-ml-team)
+        mlService:
+          title: ML Service
+          type: string
+          description: Choose your primary ML tool
+          enum:
+            - sagemaker
+            - bedrock
+          default: sagemaker
+
+  # 2. The Automation Steps
+  steps:
+    - id: template
+      name: Generating Manifests
+      action: fetch:template
+      input:
+        url: ./skeleton # This contains your vcluster and Crossplane YAMLs
+        values:
+          teamName: ${{ parameters.teamName }}
+          mlService: ${{ parameters.mlService }}
+
+    - id: publish
+      name: Publishing to GitOps Repo
+      action: publish:github
+      input:
+        allowedHosts: ['github.com']
+        description: "Provisioning ML Environment for ${{ parameters.teamName }}"
+        repoUrl: "github.com?owner=my-org&repo=platform-infrastructure"
+        branchName: main
+
+  # 3. The Output
+  output:
+    links:
+      - title: View Progress in ArgoCD
+        url: https://argocd.my-org.com/applications/vcluster-${{ parameters.teamName }}

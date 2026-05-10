@@ -1,0 +1,23 @@
+# 1. Install the AWS Provider
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-aws-sagemaker
+spec:
+  package: xpkg.upbound.io/upbound/provider-aws-sagemaker:v1.1.0 # Scoped to SageMaker for least privilege
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-aws-s3
+spec:
+  package: xpkg.upbound.io/upbound/provider-aws-s3:v1.1.0
+---
+# 2. Configure the Provider to use the EKS Pod Identity we created
+apiVersion: aws.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: default
+spec:
+  credentials:
+    source: InjectedIdentity # THIS IS THE MASTER KEY

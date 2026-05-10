@@ -1,0 +1,52 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: aws-sagemaker-workspace
+  labels:
+    provider: aws
+    type: ml-workspace
+spec:
+  compositeTypeRef:
+    apiVersion: platform.myorg.io/v1alpha1
+    kind: XMLWorkspace
+  resources:
+    # --- 1. Provision the S3 Training Bucket ---
+    - name: s3-training-bucket
+      base:
+        apiVersion: s3.aws.upbound.io/v1beta1
+        kind: Bucket
+        spec:
+          forProvider:
+            region: us-east-1
+            forceDestroy: true
+      patches:
+        - fromFieldPath: spec.teamName
+          toFieldPath: metadata.name
+          transforms:
+            - type: string
+              string:
+                fmt: "ml-training-data-%s" # e.g., ml-training-data-fraud-team
+                
+    # --- 2. Provision the SageMaker Domain ---
+    - name: sagemaker-domain
+      base:
+        apiVersion: sagemaker.aws.upbound.io/v1beta1
+        kind: Domain
+        spec:
+          forProvider:
+            authMode: IAM
+            appNetworkAccessType: VpcOnly # Security: No public SageMaker access
+            defaultUserSettings:
+              - executionRoleSelector:
+                  matchLabels:
+                    role: sagemaker-execution
+            # Note: In a real environment, you use Crossplane references 
+            # to dynamically pull the VPC and Subnet IDs from Layer 1
+            domainName: "placeholder"
+      patches:
+        - fromFieldPath: spec.teamName
+          toFieldPath: spec.forProvider.domainName
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-ml-domain"
