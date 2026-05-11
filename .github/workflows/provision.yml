@@ -26,7 +26,7 @@ jobs:
       - name: Parse Global Config
         id: config
         run: |
-          REGION=$(yq e '.aws_region' '../../global-config.yaml')
+          REGION=$(yq e '.aws_region' '../../global-variables.yaml')
           echo "REGION=$REGION" >> $GITHUB_ENV
 
       - name: Configure AWS Credentials
