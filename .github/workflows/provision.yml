@@ -59,7 +59,7 @@ jobs:
 
       - name: FinOps - Post-Deployment Summary
         if: ${{ steps.apply.outputs }} == 'success' && github.ref == 'refs/heads/main'
-          run: |
+        run: |
             echo "### 🚀 Platform Hub Provisioned" >> $GITHUB_STEP_SUMMARY
             echo "ArgoCD is now reconciling Wave 1-6." >> $GITHUB_STEP_SUMMARY
             echo "Network: Cilium eBPF | Secrets: Infisical Self-Hosted" >> $GITHUB_STEP_SUMMARY
