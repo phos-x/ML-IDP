@@ -38,7 +38,7 @@ module "karpenter" {
 
   cluster_name = module.eks.cluster_name
 
-  enable_pod_identity = true
+  create_pod_identity_association = true
   create_iam_role      = true
 
   node_iam_role_arn = module.eks.cluster_name
