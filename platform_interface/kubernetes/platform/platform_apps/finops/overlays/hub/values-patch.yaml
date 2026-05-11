@@ -1,0 +1,33 @@
+# 1. Connect to our S3-backed Prometheus stack (Wave 4)
+opencost:
+  exporter:
+    defaultClusterId: "platform-hub-us-east-1"
+  customPricing:
+    enabled: true
+    provider: aws # Tells OpenCost to pull spot/on-demand pricing from the AWS API
+  prometheus:
+    external:
+      enabled: true
+      # This points to the Kube-Prometheus-Stack we deployed earlier
+      url: "http://prometheus-operated.observability.svc.cluster.local:9090"
+
+# 2. UI Configuration
+ui:
+  enabled: true
+  ingress:
+    enabled: true
+    className: alb # Exposed securely via our AWS Load Balancer Controller
+    hosts:
+      - host: finops.myorg.com
+        paths:
+          - path: /
+            pathType: Prefix
+
+# 3. Strict Scheduling (Engineering Rigor)
+nodeSelector:
+  platform-role: system
+tolerations:
+  - key: "CriticalAddonsOnly"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"

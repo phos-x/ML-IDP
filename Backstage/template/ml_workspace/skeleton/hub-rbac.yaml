@@ -1,0 +1,29 @@
+# 1. The Role: What the team can do in their Host namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: tenant-owner
+  namespace: host-${{ values.teamName }}
+rules:
+  - apiGroups: [""]
+    resources: ["secrets", "configmaps"]
+    verbs: ["get", "list", "watch"] # Strictly Read-Only at the Hub level
+  - apiGroups: ["platform.myorg.io"]
+    resources: ["mlworkspaces"]
+    verbs: ["get", "list", "watch"] 
+---
+# 2. The Binding: Map the IDP Group to the Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tenant-owner-binding
+  namespace: host-${{ values.teamName }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: tenant-owner
+subjects:
+  - kind: Group
+    # Mastery: This maps directly to your Okta/GitHub group name!
+    name: "oidc-group:${{ values.teamName }}"
+    apiGroup: rbac.authorization.k8s.io

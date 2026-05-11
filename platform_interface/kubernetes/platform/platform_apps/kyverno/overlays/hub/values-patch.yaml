@@ -1,0 +1,47 @@
+# 1. High Availability
+replicaCount: 3
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/instance: kyverno
+
+# 2. Scheduling (Tolerations & NodeSelectors)
+admissionController:
+  replicas: 3
+  nodeSelector:
+    platform-role: system
+  tolerations:
+    - key: "CriticalAddonsOnly"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+
+backgroundController:
+  nodeSelector:
+    platform-role: system
+  tolerations:
+    - key: "CriticalAddonsOnly"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+
+cleanupController:
+  nodeSelector:
+    platform-role: system
+  tolerations:
+    - key: "CriticalAddonsOnly"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+
+reportsController:
+  nodeSelector:
+    platform-role: system
+  tolerations:
+    - key: "CriticalAddonsOnly"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"

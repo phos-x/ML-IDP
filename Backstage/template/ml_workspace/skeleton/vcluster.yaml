@@ -1,0 +1,37 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: vcluster-${{ values.teamName }}
+  namespace: host-${{ values.teamName }}
+spec:
+  chart:
+    spec:
+      chart: vcluster
+      repo: https://charts.loft.sh
+      version: 0.20.0
+  values:
+    # 1. Network Guardrails
+    isolation:
+      enabled: true
+      podSecurityStandard: baseline
+    
+    # 2. Identity Mastery: Pass OIDC flags to the Virtual API Server
+    vcluster:
+      extraArgs:
+        - "--oidc-issuer-url=https://github.com" # Or your Okta/Auth0 URL
+        - "--oidc-client-id=your-platform-client-id"
+        - "--oidc-username-claim=email"
+        - "--oidc-groups-claim=groups"
+    
+    # 3. Auto-Provision Virtual RBAC
+    # As soon as the vcluster boots, it automatically grants 
+    # 'cluster-admin' to anyone in the team's OIDC group.
+    rbac:
+      clusterRole:
+        create: true
+      roleBindings:
+        - name: team-admin-binding
+          clusterRole: cluster-admin
+          subjects:
+            - kind: Group
+              name: "oidc-group:${{ values.teamName }}"

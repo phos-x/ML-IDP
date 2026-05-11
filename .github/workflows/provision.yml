@@ -1,0 +1,64 @@
+name: "Platform Hub - Layer 1 Provision"
+
+on:
+  push:
+    branches: [ main ]
+    paths: 
+      - 'mgmt_hub/terraform/**'
+      - 'mgmt_hub/kubernetes/bootstrap/**' # Trigger if bootstrap logic changes
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./mgmt_hub/terraform
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Parse Global Config
+        id: config
+        run: |
+          REGION=$(yq e '.aws_region' global-config.yaml)
+          echo "REGION=$REGION" >> $GITHUB_ENV
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsTerraformRole
+          aws-region: ${{ env.REGION }}
+      
+      - name: Init setup
+        run: |
+          chmod +x ../terraform/bootstrap/init-s3-backend.sh
+          ../bootstrap/init-s3-backend.sh "platform-hub" "us-east-1"
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        # We inject the GitHub Token and Repo URL here
+        run: |
+          terraform plan \
+            -var="github_token=${{ secrets.PLATFORM_GITHUB_TOKEN }}" \
+            -var="github_repo_url=https://github.com/${{ github.repository }}" \
+            -out=tfplan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve tfplan
+
+      - name: FinOps - Post-Deployment Summary
+        run: |
+          echo "### 🚀 Platform Hub Provisioned" >> $GITHUB_STEP_SUMMARY
+          echo "ArgoCD is now reconciling Wave 1-6." >> $GITHUB_STEP_SUMMARY
+          echo "Network: Cilium eBPF | Secrets: Infisical Self-Hosted" >> $GITHUB_STEP_SUMMARY

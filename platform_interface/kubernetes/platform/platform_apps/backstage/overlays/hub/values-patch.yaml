@@ -1,0 +1,63 @@
+# 1. Use the official public image. No more custom ECR!
+image:
+  repository: ghcr.io/backstage/backstage
+  tag: 1.25.0
+
+# 2. Enable the Dynamic Plugin framework
+backend:
+  # This tells the backend to scan the mounted volume for plugins at startup
+  dynamicPlugins:
+    rootDirectory: /dynamic-plugins-root
+
+# 3. The Init Container: Downloads the plugins automatically
+extraInitContainers:
+  - name: install-dynamic-plugins
+    image: node:18-alpine
+    command:
+      - /bin/sh
+      - -c
+      - |
+        echo "Downloading plugins..."
+        npm pack @backstage/plugin-kubernetes-backend@latest --pack-destination /dynamic-plugins-root
+        npm pack @roadiehq/scaffolder-backend-argocd@latest --pack-destination /dynamic-plugins-root
+        npm pack @backstage/plugin-scaffolder-backend-module-github@latest --pack-destination /dynamic-plugins-root
+        echo "Plugins ready."
+    volumeMounts:
+      - name: dynamic-plugins
+        mountPath: /dynamic-plugins-root
+
+# 4. Mount the volume to share plugins between the Init Container and the App
+extraVolumeMounts:
+  - name: dynamic-plugins
+    mountPath: /dynamic-plugins-root
+
+extraVolumes:
+  - name: dynamic-plugins
+    emptyDir: {}
+
+# 5. The Application Configuration
+appConfig:
+  # Enable the plugins in the UI and Backend
+  dynamicPlugins:
+    frontend:
+      backstage.plugin-kubernetes:
+        mountPoint: entity.page.kubernetes/cards
+    backend:
+      - package: /dynamic-plugins-root/backstage-plugin-kubernetes-backend-X.X.X.tgz
+        disabled: false
+      - package: /dynamic-plugins-root/roadiehq-scaffolder-backend-argocd-X.X.X.tgz
+        disabled: false
+
+  # Core configuration (URLs, Auth, etc.)
+  app:
+    baseUrl: https://backstage.myorg.com
+  backend:
+    baseUrl: https://backstage.myorg.com
+    database:
+      client: pg
+      # Mastery: We use Infisical to inject these safely, just like we did with other tools
+      connection:
+        host: ${POSTGRES_HOST}
+        port: ${POSTGRES_PORT}
+        user: ${POSTGRES_USER}
+        password: ${POSTGRES_PASSWORD}

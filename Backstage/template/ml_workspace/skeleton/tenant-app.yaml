@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ${{ values.teamName }}-workspace
+  namespace: argocd
+  # FinOps Tagging at the Application Level
+  labels:
+    platform.tech/cost-center: "${{ values.costCenter }}"
+    platform.tech/team: "${{ values.teamName }}"
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/YOUR_ORG/platform-gitops.git'
+    targetRevision: main
+    path: kubernetes/tenants/${{ values.teamName }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: host-${{ values.teamName }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

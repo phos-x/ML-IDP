@@ -1,0 +1,44 @@
+# 1. Network Isolation: Only EKS Nodes can talk to this DB
+apiVersion: ec2.aws.upbound.io/v1beta1
+kind: SecurityGroupRule
+metadata:
+  name: eks-to-infisical-rds
+spec:
+  forProvider:
+    region: us-east-1
+    type: ingress
+    fromPort: 5432
+    toPort: 5432
+    protocol: tcp
+    sourceSecurityGroupIdSelector:
+      matchLabels:
+        platform.tech/role: eks-nodes 
+    securityGroupIdSelector:
+      matchLabels:
+        platform.tech/role: rds-sg
+
+---
+# 2. The Database Provisioner
+apiVersion: database.aws.upbound.io/v1beta1
+kind: Instance
+metadata:
+  name: infisical-core-db
+spec:
+  forProvider:
+    region: us-east-1
+    dbInstanceClass: db.t4g.micro # FinOps: Graviton Processors are cheaper
+    allocatedStorage: 20
+    engine: postgres
+    engineVersion: "15.5"
+    publiclyAccessible: false
+    skipFinalSnapshot: true # Set to false in Production
+    
+    # THE HANDOFF: Crossplane creates this K8s secret automatically 
+    # when the RDS instance finishes provisioning in AWS.
+    writeConnectionSecretToRef:
+      name: infisical-postgres-conn
+      namespace: infisical-system 
+
+  # FinOps Tagging Standard
+  providerConfigRef:
+    name: default

@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+patches:
+  - target:
+      kind: HelmChart
+      name: opencost
+    patch: |-
+      - op: add
+        path: /valuesFile
+        value: values-patch.yaml

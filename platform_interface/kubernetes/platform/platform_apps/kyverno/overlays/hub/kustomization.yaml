@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - policies/pss-baseline.yaml
+  - policies/require-ro-rootfs.yaml
+  - policies/mutate-inject-labels.yaml
+  - policies/require-resource-limits.yaml # <-- Your new Audit policy added here
+
+patches:
+  - target:
+      kind: HelmChart
+      name: kyverno
+    patch: |-
+      - op: add
+        path: /valuesFile
+        value: values-patch.yaml

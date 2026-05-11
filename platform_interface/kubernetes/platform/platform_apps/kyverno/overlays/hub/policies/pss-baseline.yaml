@@ -1,0 +1,23 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: enforce-baseline-security
+  annotations:
+    policies.kyverno.io/title: Enforce Baseline Security
+spec:
+  validationFailureAction: Enforce # Change to 'Audit' for testing, 'Enforce' for Production
+  background: true
+  rules:
+    - name: check-privileged-containers
+      match:
+        any:
+        - resources:
+            kinds:
+              - Pod
+      validate:
+        message: "Privileged containers are not allowed. Please remove 'privileged: true'."
+        pattern:
+          spec:
+            containers:
+              - =(securityContext):
+                  =(privileged): false

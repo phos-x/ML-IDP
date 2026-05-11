@@ -1,0 +1,44 @@
+# Global Scheduling Constraints for ALL ArgoCD Pods
+global:
+  nodeSelector:
+    platform-role: system
+  tolerations:
+    - key: "CriticalAddonsOnly"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+
+# ArgoCD Server (The UI/API)
+server:
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+  # Pod Anti-Affinity: Don't put both UI pods on the same EC2 node
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - argocd-server
+            topologyKey: kubernetes.io/hostname
+
+# Repo Server (Clones your Git Repos - High CPU usage)
+repoServer:
+  replicas: 2
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+# Application Controller (The engine that reconciles state)
+controller:
+  replicas: 1 # Standard setup; Active/Active requires Redis HA
+  resources:
+    limits:
+      cpu: 512m
+      memory: 1Gi

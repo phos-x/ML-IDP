@@ -1,0 +1,31 @@
+# AWS S3 Bucket for Training Data
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: Bucket
+metadata:
+  name: ml-data-${{ values.teamName }}-${{ values.projectName }}
+  labels:
+    platform.tech/cost-center: "${{ values.costCenter }}"
+spec:
+  forProvider:
+    region: us-east-1
+    tags:
+      Team: "${{ values.teamName }}"
+      CostCenter: "${{ values.costCenter }}"
+
+---
+# AWS RDS for ML Metadata
+apiVersion: database.aws.upbound.io/v1beta1
+kind: Instance
+metadata:
+  name: ml-db-${{ values.teamName }}-${{ values.projectName }}
+spec:
+  forProvider:
+    dbInstanceClass: db.t4g.micro
+    engine: postgres
+    tags:
+      Team: "${{ values.teamName }}"
+      CostCenter: "${{ values.costCenter }}"
+  # Securely write the DB password directly into the team's vcluster namespace
+  writeConnectionSecretToRef:
+    name: ml-db-credentials
+    namespace: host-${{ values.teamName }}

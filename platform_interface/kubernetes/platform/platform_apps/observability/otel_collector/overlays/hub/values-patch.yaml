@@ -1,0 +1,62 @@
+mode: deployment
+
+# Scheduling: Pin to System Nodes
+nodeSelector:
+  platform-role: system
+tolerations:
+  - key: "CriticalAddonsOnly"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+        http:
+    # Scrapes K8s infrastructure metrics
+    prometheus:
+      config:
+        scrape_configs:
+          - job_name: 'otel-collector'
+            scrape_interval: 10s
+            static_configs:
+              - targets: ['0.0.0.0:8888']
+
+  processors:
+    batch:
+    # Mastery: Enforce metadata tagging for cost attribution
+    resourcedetection:
+      detectors: [env, eks, system]
+    resource:
+      attributes:
+        - key: cluster.name
+          value: "platform-hub"
+          action: upsert
+
+  exporters:
+    # Routes to our Open Source backends
+    prometheusremotewrite:
+      endpoint: "http://prometheus-operated.observability.svc.cluster.local:9090/api/v1/write"
+    loki:
+      endpoint: "http://loki-gateway.observability.svc.cluster.local/loki/api/v1/push"
+    otlp:
+      endpoint: "tempo-distributor.observability.svc.cluster.local:4317"
+      tls:
+        insecure: true
+
+  service:
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [batch, resource]
+        exporters: [otlp]
+      metrics:
+        receivers: [otlp, prometheus]
+        processors: [batch, resource]
+        exporters: [prometheusremotewrite]
+      logs:
+        receivers: [otlp]
+        processors: [batch, resource]
+        exporters: [loki]

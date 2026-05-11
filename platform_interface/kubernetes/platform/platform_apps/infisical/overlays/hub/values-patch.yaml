@@ -1,0 +1,67 @@
+# 1. Disable the ephemeral built-in database
+postgresql:
+  enabled: false
+
+# 2. Map the Crossplane Secret into the Infisical Pod Environment
+# This is the "Zero-Touch" bridge. We tell Infisical to look inside 
+# the 'infisical-postgres-conn' secret and pull out specific keys.
+env:
+  - name: DB_HOST
+    valueFrom:
+      secretKeyRef:
+        name: infisical-postgres-conn
+        key: endpoint       # Matches Crossplane's standard output
+  - name: DB_PORT
+    valueFrom:
+      secretKeyRef:
+        name: infisical-postgres-conn
+        key: port
+  - name: DB_USER
+    valueFrom:
+      secretKeyRef:
+        name: infisical-postgres-conn
+        key: username
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: infisical-postgres-conn
+        key: password
+  - name: DB_NAME
+    value: postgres         # The default database name created by AWS RDS
+
+# 3. Redis Configuration (Self-Hosted for caching)
+redis:
+  enabled: true
+  architecture: standalone
+
+# Strict Scheduling: Pin to System Nodes
+nodeSelector:
+  platform-role: system
+tolerations:
+  - key: "CriticalAddonsOnly"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+
+controllerManager:
+  manager:
+    # 1. Scheduling Constraints (Run only on System Nodes)
+    nodeSelector:
+      platform-role: system
+    tolerations:
+      - key: "CriticalAddonsOnly"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+    
+    # 2. Resource Management
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+  # 3. High Availability (Ensure the operator never goes down)
+  replicas: 2

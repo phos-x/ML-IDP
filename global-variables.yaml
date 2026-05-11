@@ -1,0 +1,5 @@
+# --- Platform Global Variables ---
+aws_region: "us-east-1"
+cluster_name: "platform-hub"
+domain_name: "platform.myorg.com"
+environment: "production"
