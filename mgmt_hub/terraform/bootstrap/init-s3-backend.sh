@@ -9,7 +9,7 @@ fi
 
 PROJECT_NAME=$1
 REGION=${2:-us-east-1} 
-BUCKET_NAME="tf-state-${PROJECT_NAME}-${REGION}"
+BUCKET_NAME="tf-state-platform-hub-${REGION}"
 
 echo "🚀 Initializing Terraform State Backend..."
 echo "Target Bucket: $BUCKET_NAME"
