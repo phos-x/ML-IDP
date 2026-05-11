@@ -1,5 +1,3 @@
-# --- 1. Kubernetes & Helm Providers ---
-# These use the EKS cluster credentials generated in your EKS module
 provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
@@ -33,7 +31,7 @@ provider "kubectl" {
   }
 }
 
-# --- 2. Secret Zero: GitHub Credentials ---
+
 # This allows ArgoCD to read your private GitOps repository
 resource "kubernetes_secret" "github_creds" {
   metadata {
@@ -54,14 +52,13 @@ resource "kubernetes_secret" "github_creds" {
   depends_on = [helm_release.argocd]
 }
 
-# --- 3. ArgoCD Installation (Consolidated Scaling) ---
 resource "helm_release" "argocd" {
   name             = "argocd"
   repository       = "https://argoproj.github.io/argo-helm"
   chart            = "argo-cd"
   namespace        = "argocd"
   create_namespace = true
-  version          = "7.3.1" # May 2026 Stable
+  version          = "9.5.13"
 
   values = [
     yamlencode({
@@ -83,10 +80,8 @@ resource "helm_release" "argocd" {
   ]
 }
 
-# --- 4. The "Lights-Out" Trigger ---
-# This applies the ApplicationSet that kicks off Wave 1-6
 resource "kubectl_manifest" "platform_bootstrap" {
-  yaml_body = file("${path.module}/../kubernetes/bootstrap/platform-applicationset.yaml")
+  yaml_body = file("${path.module}/../platform_interface/kubernetes/bootstrap/platform-applicationset.yaml")
 
   depends_on = [helm_release.argocd, kubernetes_secret.github_creds]
 }

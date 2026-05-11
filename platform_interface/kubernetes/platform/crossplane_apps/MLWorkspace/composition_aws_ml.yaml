@@ -10,14 +10,13 @@ spec:
     apiVersion: platform.myorg.io/v1alpha1
     kind: XMLWorkspace
   resources:
-    # --- 1. Provision the S3 Training Bucket ---
     - name: s3-training-bucket
       base:
         apiVersion: s3.aws.upbound.io/v1beta1
         kind: Bucket
         spec:
           forProvider:
-            region: us-east-1
+            region: eu-west-2
             forceDestroy: true
       patches:
         - fromFieldPath: spec.teamName
@@ -25,9 +24,8 @@ spec:
           transforms:
             - type: string
               string:
-                fmt: "ml-training-data-%s" # e.g., ml-training-data-fraud-team
+                fmt: "ml-training-data-%s"
                 
-    # --- 2. Provision the SageMaker Domain ---
     - name: sagemaker-domain
       base:
         apiVersion: sagemaker.aws.upbound.io/v1beta1
@@ -35,13 +33,11 @@ spec:
         spec:
           forProvider:
             authMode: IAM
-            appNetworkAccessType: VpcOnly # Security: No public SageMaker access
+            appNetworkAccessType: VpcOnly 
             defaultUserSettings:
               - executionRoleSelector:
                   matchLabels:
                     role: sagemaker-execution
-            # Note: In a real environment, you use Crossplane references 
-            # to dynamically pull the VPC and Subnet IDs from Layer 1
             domainName: "placeholder"
       patches:
         - fromFieldPath: spec.teamName

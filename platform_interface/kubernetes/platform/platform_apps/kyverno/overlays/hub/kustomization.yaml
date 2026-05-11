@@ -6,7 +6,7 @@ resources:
   - policies/pss-baseline.yaml
   - policies/require-ro-rootfs.yaml
   - policies/mutate-inject-labels.yaml
-  - policies/require-resource-limits.yaml # <-- Your new Audit policy added here
+  - policies/require-resource-limits.yaml
 
 patches:
   - target:

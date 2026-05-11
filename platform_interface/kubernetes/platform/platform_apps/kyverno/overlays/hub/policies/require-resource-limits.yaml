@@ -9,7 +9,7 @@ metadata:
       To ensure fair-share of cluster resources, every container must explicitly 
       declare its CPU and Memory requests and limits.
 spec:
-  validationFailureAction: Audit # Quietly logs violations instead of blocking deployments
+  validationFailureAction: Audit
   background: true
   rules:
     - name: validate-resource-definitions
@@ -18,8 +18,6 @@ spec:
         - resources:
             kinds:
               - Pod
-      # We exclude the kube-system namespace because some default AWS/EKS 
-      # daemonsets might not ship with strict limits, and we don't want false positives.
       exclude:
         any:
         - resources:
@@ -30,7 +28,6 @@ spec:
         pattern:
           spec:
             containers:
-              # The '?*' operator in Kyverno means "Must exist and cannot be empty"
               - resources:
                   requests:
                     memory: "?*"

@@ -1,4 +1,3 @@
-# 1. High Availability
 replicaCount: 3
 topologySpreadConstraints:
   - maxSkew: 1
@@ -8,7 +7,6 @@ topologySpreadConstraints:
       matchLabels:
         app.kubernetes.io/instance: kyverno
 
-# 2. Scheduling (Tolerations & NodeSelectors)
 admissionController:
   replicas: 3
   nodeSelector:

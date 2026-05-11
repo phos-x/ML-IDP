@@ -12,9 +12,3 @@ patches:
       - op: add
         path: /valuesFile
         value: values-patch.yaml
-
-# The GitHub Action edits this block automatically!
-images:
-  - name: backstage-custom-image
-    newName: 123456789012.dkr.ecr.us-east-1.amazonaws.com/platform-backstage
-    newTag: a1b2c3d

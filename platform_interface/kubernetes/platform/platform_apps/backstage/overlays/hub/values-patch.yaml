@@ -1,15 +1,10 @@
-# 1. Use the official public image. No more custom ECR!
 image:
   repository: ghcr.io/backstage/backstage
-  tag: 1.25.0
-
-# 2. Enable the Dynamic Plugin framework
+  tag: 1.51.0-next.2
 backend:
-  # This tells the backend to scan the mounted volume for plugins at startup
   dynamicPlugins:
     rootDirectory: /dynamic-plugins-root
 
-# 3. The Init Container: Downloads the plugins automatically
 extraInitContainers:
   - name: install-dynamic-plugins
     image: node:18-alpine
@@ -26,7 +21,6 @@ extraInitContainers:
       - name: dynamic-plugins
         mountPath: /dynamic-plugins-root
 
-# 4. Mount the volume to share plugins between the Init Container and the App
 extraVolumeMounts:
   - name: dynamic-plugins
     mountPath: /dynamic-plugins-root
@@ -35,9 +29,7 @@ extraVolumes:
   - name: dynamic-plugins
     emptyDir: {}
 
-# 5. The Application Configuration
 appConfig:
-  # Enable the plugins in the UI and Backend
   dynamicPlugins:
     frontend:
       backstage.plugin-kubernetes:
@@ -48,14 +40,12 @@ appConfig:
       - package: /dynamic-plugins-root/roadiehq-scaffolder-backend-argocd-X.X.X.tgz
         disabled: false
 
-  # Core configuration (URLs, Auth, etc.)
   app:
     baseUrl: https://backstage.myorg.com
   backend:
     baseUrl: https://backstage.myorg.com
     database:
       client: pg
-      # Mastery: We use Infisical to inject these safely, just like we did with other tools
       connection:
         host: ${POSTGRES_HOST}
         port: ${POSTGRES_PORT}

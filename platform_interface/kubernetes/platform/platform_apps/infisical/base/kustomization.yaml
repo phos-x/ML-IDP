@@ -4,6 +4,6 @@ kind: Kustomization
 helmCharts:
   - name: infisical-secrets-operator
     repo: https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/
-    version: 0.5.10 # Strict version pinning
+    version: 0.10.32 # Strict version pinning
     releaseName: infisical-operator
     namespace: infisical-operator-system

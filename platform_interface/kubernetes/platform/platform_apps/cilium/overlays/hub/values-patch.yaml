@@ -14,6 +14,5 @@ ipam:
 eni:
   enabled: true
 
-# Security: Ensure Cilium can run on our Tainted System Nodes
 tolerations:
-  - operator: Exists # Cilium is a DaemonSet, it MUST run everywhere, even tainted nodes
+  - operator: Exists

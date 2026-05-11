@@ -2,10 +2,10 @@ name: "Platform Hub - Layer 1 Provision"
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev ]
     paths: 
       - 'mgmt_hub/terraform/**'
-      - 'mgmt_hub/kubernetes/bootstrap/**' # Trigger if bootstrap logic changes
+      - 'platform_interface/kubernetes/**' 
 
 permissions:
   id-token: write
@@ -37,7 +37,7 @@ jobs:
       - name: Init setup
         run: |
           chmod +x ../terraform/bootstrap/init-s3-backend.sh
-          ../bootstrap/init-s3-backend.sh "platform-hub" "us-east-1"
+          ../bootstrap/init-s3-backend.sh "platform-hub" "${{ env.REGION }}"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -46,7 +46,6 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
-        # We inject the GitHub Token and Repo URL here
         run: |
           terraform plan \
             -var="github_token=${{ secrets.PLATFORM_GITHUB_TOKEN }}" \
@@ -54,11 +53,13 @@ jobs:
             -out=tfplan
 
       - name: Terraform Apply
+        id: apply
         if: github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve tfplan
 
       - name: FinOps - Post-Deployment Summary
-        run: |
-          echo "### 🚀 Platform Hub Provisioned" >> $GITHUB_STEP_SUMMARY
-          echo "ArgoCD is now reconciling Wave 1-6." >> $GITHUB_STEP_SUMMARY
-          echo "Network: Cilium eBPF | Secrets: Infisical Self-Hosted" >> $GITHUB_STEP_SUMMARY
+        if: ${{ steps.apply.outputs }} == 'success' && github.ref == 'refs/heads/main'
+          run: |
+            echo "### 🚀 Platform Hub Provisioned" >> $GITHUB_STEP_SUMMARY
+            echo "ArgoCD is now reconciling Wave 1-6." >> $GITHUB_STEP_SUMMARY
+            echo "Network: Cilium eBPF | Secrets: Infisical Self-Hosted" >> $GITHUB_STEP_SUMMARY

@@ -5,9 +5,8 @@ loki:
   storage:
     type: s3
     s3:
-      region: us-east-1
+      region: eu-west-2
       bucketnames: platform-logs-archive
-  # Ensure components land on system nodes
   read:
     nodeSelector: { platform-role: system }
   write:
@@ -19,4 +18,4 @@ tempo:
       backend: s3
       s3:
         bucket: platform-traces-archive
-        region: us-east-1
+        region: eu-west-2

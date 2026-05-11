@@ -5,7 +5,7 @@ metadata:
   annotations:
     policies.kyverno.io/title: Enforce Baseline Security
 spec:
-  validationFailureAction: Enforce # Change to 'Audit' for testing, 'Enforce' for Production
+  validationFailureAction: Enforce
   background: true
   rules:
     - name: check-privileged-containers

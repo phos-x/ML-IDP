@@ -4,6 +4,6 @@ kind: Kustomization
 helmCharts:
   - name: opencost
     repo: https://opencost.github.io/opencost-helm-chart
-    version: 1.33.0 # Strict version pinning for 2026 standards
+    version: 1.9.8 # Strict version pinning for 2026 standards
     releaseName: opencost
     namespace: finops-system

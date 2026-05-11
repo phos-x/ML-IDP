@@ -1,6 +1,5 @@
 mode: deployment
 
-# Scheduling: Pin to System Nodes
 nodeSelector:
   platform-role: system
 tolerations:
@@ -15,7 +14,6 @@ config:
       protocols:
         grpc:
         http:
-    # Scrapes K8s infrastructure metrics
     prometheus:
       config:
         scrape_configs:
@@ -26,7 +24,6 @@ config:
 
   processors:
     batch:
-    # Mastery: Enforce metadata tagging for cost attribution
     resourcedetection:
       detectors: [env, eks, system]
     resource:
@@ -36,7 +33,6 @@ config:
           action: upsert
 
   exporters:
-    # Routes to our Open Source backends
     prometheusremotewrite:
       endpoint: "http://prometheus-operated.observability.svc.cluster.local:9090/api/v1/write"
     loki:

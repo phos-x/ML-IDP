@@ -24,7 +24,7 @@ The platform uses a "Zero-Touch" bootstrap model. Once the initial pipeline is t
 We use a Single Source of Truth (SSOT) pattern. Open `global-variables.yaml` at the root of the repository and set your target deployment parameters:
 
 ```yaml
-aws_region: "us-east-1"
+aws_region: "eu-west-2"
 account_id: "123456789012"
 cluster_name: "platform-hub"
 environment: "production"

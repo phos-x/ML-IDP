@@ -14,4 +14,4 @@ spec:
         patchStrategicMerge:
           metadata:
             labels:
-              team: "{{request.namespace}}" # Automatically tags every pod with its team/namespace name
+              team: "{{request.namespace}}" 

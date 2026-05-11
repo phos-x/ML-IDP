@@ -4,34 +4,33 @@ metadata:
   name: platform-hub-bootstrap
   namespace: argocd
 spec:
-  # The List Generator defines exactly WHAT gets deployed and in WHAT order.
   generators:
     - list:
         elements:
           - name: cilium
             path: kubernetes/platform/cilium/overlays/hub
             namespace: kube-system
-            wave: "1" # Wave 1: The Network Core
+            wave: "1"
           - name: crossplane
             path: kubernetes/platform/crossplane/overlays/hub
             namespace: crossplane-system
-            wave: "2" # Wave 2: The Universal Cloud API
+            wave: "2"
           - name: rds-infrastructure
             path: kubernetes/platform/rds/overlays/hub
             namespace: crossplane-system
-            wave: "3" # Wave 3: Provision AWS RDS via Crossplane
+            wave: "3" 
           - name: infisical
             path: kubernetes/platform/infisical/overlays/hub
             namespace: infisical-system
-            wave: "4" # Wave 4: Start Secrets Engine (using RDS from Wave 3)
+            wave: "4"
           - name: security-guardrails
             path: kubernetes/platform/security/overlays/hub
             namespace: security-system
-            wave: "5" # Wave 5: Enforce VAP and Kyverno Policies
+            wave: "5"
           - name: opencost
             path: kubernetes/platform/finops/overlays/hub
             namespace: finops-system
-            wave: "6" # Wave 6: Boot up FinOps cost tracking
+            wave: "6" 
   template:
     metadata:
       name: '{{name}}'
@@ -40,7 +39,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: 'https://github.com/YOUR_ORG/YOUR_REPO.git' # Injected by CI
+        repoURL: 'https://github.com/phos-x/ML-IDP.git'
         targetRevision: main
         path: '{{path}}'
       destination:
@@ -52,9 +51,9 @@ spec:
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
-          - ServerSideApply=true # Critical for CRDs to prevent "too long annotation" errors
+          - ServerSideApply=true 
         retry:
-          limit: 5 # Resiliency: If AWS is slow provisioning the RDS, ArgoCD will wait and retry
+          limit: 5
           backoff:
             duration: 10s
             factor: 2

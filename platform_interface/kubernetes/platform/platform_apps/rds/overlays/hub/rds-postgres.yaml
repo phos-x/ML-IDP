@@ -5,7 +5,7 @@ metadata:
   name: eks-to-infisical-rds
 spec:
   forProvider:
-    region: us-east-1
+    region: eu-west-2
     type: ingress
     fromPort: 5432
     toPort: 5432
@@ -25,7 +25,7 @@ metadata:
   name: infisical-core-db
 spec:
   forProvider:
-    region: us-east-1
+    region: eu-west-2
     dbInstanceClass: db.t4g.micro # FinOps: Graviton Processors are cheaper
     allocatedStorage: 20
     engine: postgres

@@ -3,7 +3,6 @@ kind: Application
 metadata:
   name: ${{ values.teamName }}-workspace
   namespace: argocd
-  # FinOps Tagging at the Application Level
   labels:
     platform.tech/cost-center: "${{ values.costCenter }}"
     platform.tech/team: "${{ values.teamName }}"

@@ -1,6 +1,6 @@
 variable "aws_region" {
   type    = string
-  default = "us-east-1"
+  default = "eu-west-2"
 }
 
 variable "project_name" {
@@ -30,7 +30,7 @@ variable "vpc_cidr" {
 
 variable "availability_zones" {
   type    = list(string)
-  default = ["us-east-1a", "us-east-1b"]
+  default = ["eu-west-2a", "eu-west-2b"]
 }
 
 variable "single_nat_gateway" {
@@ -41,6 +41,7 @@ variable "single_nat_gateway" {
 variable "github_org" {
   type        = string
   description = "GitHub Org/User for OIDC trust"
+  default = "ade"
 }
 
 variable "github_repo" {

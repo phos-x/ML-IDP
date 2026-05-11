@@ -7,7 +7,6 @@ spec:
   names:
     kind: XMLWorkspace
     plural: xmlworkspaces
-  # This is the "Claim" that Backstage will actually use
   claimNames:
     kind: MLWorkspace
     plural: mlworkspaces
@@ -22,7 +21,6 @@ spec:
             spec:
               type: object
               properties:
-                # The parameters Backstage asks the user for
                 teamName:
                   type: string
                 enableSageMaker:

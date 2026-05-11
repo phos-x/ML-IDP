@@ -1,6 +1,5 @@
 prometheus:
   prometheusSpec:
-    # Scheduling
     nodeSelector:
       platform-role: system
     tolerations:
@@ -9,18 +8,21 @@ prometheus:
         value: "true"
         effect: "NoSchedule"
     
-    # Mastery: Thanos Sidecar for S3 Offloading
     thanos:
-      image: quay.io/thanos/thanos:v0.35.1
+      image: quay.io/thanos/thanos:v0.41.0
       objectStorageConfig:
-        name: thanos-objstore-config
-        key: objstore.yml # This secret is injected by Infisical
+        name: thanos-s3-credentials 
+        key: objstore.yml
 
-    retention: 2h # Keep only 2 hours on disk; Thanos moves the rest to S3
+    retention: 2h 
     serviceMonitorSelectorNilUsesHelmValues: false
 
 grafana:
   enabled: true
-  adminPassword: "prom-operator" # Should be replaced by an Infisical secret
+  admin:
+    existingSecret: "grafana-admin-credentials"
+    userKey: admin-user
+    passwordKey: admin-password
+    
   nodeSelector:
     platform-role: system

@@ -4,6 +4,6 @@ kind: Kustomization
 helmCharts:
   - name: kyverno
     repo: https://kyverno.github.io/kyverno/
-    version: 3.2.6 # Strict version pinning
+    version: 3.8.0
     releaseName: kyverno
     namespace: kyverno

@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/YOUR_ORG/YOUR_REPO.git' # UPDATE THIS
+    repoURL: 'https://github.com/phos-x/ML-IDP.git'
     targetRevision: main
-    path: kubernetes/platform # ArgoCD will read everything in this directory
+    path: kubernetes/platform
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: argocd

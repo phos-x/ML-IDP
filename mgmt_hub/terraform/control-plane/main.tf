@@ -34,7 +34,7 @@ module "eks" {
 # We use the community module here for Karpenter's specific IAM complexity
 module "karpenter" {
   source  = "terraform-aws-modules/eks/aws//modules/karpenter"
-  version = "~> 20.0"
+  version = "21.20.0"
 
   cluster_name = module.eks.cluster_name
 

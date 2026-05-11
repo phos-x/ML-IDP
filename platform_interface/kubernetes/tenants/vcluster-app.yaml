@@ -1,7 +1,6 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  # Backstage will inject the actual team name here
   name: vcluster-fraud-team 
   namespace: argocd
 spec:
@@ -9,7 +8,7 @@ spec:
   source:
     repoURL: 'https://charts.loft.sh'
     chart: vcluster
-    targetRevision: 0.20.0 # Pin your vcluster version
+    targetRevision: 0.35.0-alpha.3 # Pin your vcluster version
     helm:
       values: |
         # 1. Isolation Mastery: Auto-enforce Network Policies

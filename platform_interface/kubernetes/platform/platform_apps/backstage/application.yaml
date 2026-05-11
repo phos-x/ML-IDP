@@ -7,16 +7,13 @@ spec:
   project: default
   source:
     repoURL: 'https://backstage.github.io/charts'
-    targetRevision: 1.5.x # Always pin Helm versions
+    targetRevision: 2.7.0 # Always pin Helm versions
     chart: backstage
     helm:
       valueFiles:
-        # ArgoCD pulls this values file from YOUR repo, not the Helm repo
-        - $values/kubernetes/platform/backstage/values.yaml
+        - $values/platform_interface/kubernetes/platform/platform_apps/backstage/values.yaml
   sources:
-    # This clever ArgoCD trick allows you to use a public Helm chart 
-    # but feed it a values.yaml file from your private Git repository.
-    - repoURL: 'https://github.com/YOUR_ORG/YOUR_REPO.git'
+    - repoURL: 'https://github.com/phos-x/ML-IDP.git'
       targetRevision: main
       ref: values
   destination:

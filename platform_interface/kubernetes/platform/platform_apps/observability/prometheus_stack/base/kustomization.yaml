@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - ../../../../globals
+  - infisical-secrets.yaml 
+patches:
+  - target:
+      kind: HelmChart
+      name: kube-prometheus-stack
+    patch: |-
+      - op: add
+        path: /valuesFile
+        value: values-patch.yaml

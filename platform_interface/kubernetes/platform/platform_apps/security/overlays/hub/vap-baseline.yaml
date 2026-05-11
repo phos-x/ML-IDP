@@ -1,10 +1,9 @@
-# --- 1. The Policy Definition (The Rules) ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicy
 metadata:
   name: platform-baseline-guardrails
 spec:
-  failurePolicy: Fail # Strict enforcement at the API level
+  failurePolicy: Fail
   matchConstraints:
     resourceRules:
     - apiGroups:   [""]
@@ -12,37 +11,31 @@ spec:
       operations:  ["CREATE", "UPDATE"]
       resources:   ["pods"]
   validations:
-    # Rule 1: FinOps Mandatory Labeling Schema
     - expression: >
         has(object.metadata.labels) && 
         'platform.tech/cost-center' in object.metadata.labels && 
         'platform.tech/team' in object.metadata.labels
       message: "FinOps Violation: Pods must include 'platform.tech/cost-center' and 'platform.tech/team' labels."
     
-    # Rule 2: Resource Fair-Share (Requests & Limits)
     - expression: >
         object.spec.containers.all(c, has(c.resources) && has(c.resources.limits) && has(c.resources.requests))
       message: "Stability Violation: All containers must explicitly define CPU and Memory requests and limits."
       
-    # Rule 3: Security - No Privileged Containers
-    - expression: >
+     expression: >
         !object.spec.containers.exists(c, has(c.securityContext) && has(c.securityContext.privileged) && c.securityContext.privileged == true)
       message: "Security Violation: Privileged containers are strictly forbidden on the Hub cluster."
 
 ---
-# --- 2. The Policy Binding (Where it applies) ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicyBinding
 metadata:
   name: platform-baseline-binding
 spec:
   policyName: platform-baseline-guardrails
-  validationActions: [Deny] # Actively block requests that fail the CEL expressions
+  validationActions: [Deny]
   matchResources:
     namespaceSelector:
       matchExpressions:
-      # We exclude core system namespaces from this strict policy to prevent 
-      # locking out critical AWS or EKS daemonsets that might not follow our exact tagging schema.
       - key: kubernetes.io/metadata.name
         operator: NotIn
         values: 
