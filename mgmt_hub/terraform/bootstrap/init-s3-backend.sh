@@ -8,7 +8,7 @@ if [ -z "$1" ]; then
 fi
 
 PROJECT_NAME=$1
-REGION=${2:-eu-west-2} 
+REGION=${2:-us-east-1} 
 BUCKET_NAME="tf-state-${PROJECT_NAME}-${REGION}"
 
 echo "🚀 Initializing Terraform State Backend..."
@@ -24,7 +24,7 @@ if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
     echo "✅ Bucket $BUCKET_NAME already exists. Verifying security configurations..."
 else
     echo "⏳ Creating bucket $BUCKET_NAME..."
-    if [ "$REGION" == "eu-west-2" ]; then
+    if [ "$REGION" == "us-east-1" ]; then
         aws s3api create-bucket --bucket "$BUCKET_NAME" --region "$REGION"
     else
         aws s3api create-bucket --bucket "$BUCKET_NAME" --region "$REGION" \
