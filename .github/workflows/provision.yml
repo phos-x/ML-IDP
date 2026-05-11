@@ -46,7 +46,6 @@ jobs:
       - name: Terraform Init
         run: |
           cd control-plane && \
-          ls && echo $(pwd) && \
           terraform init
 
       - name: Terraform Plan

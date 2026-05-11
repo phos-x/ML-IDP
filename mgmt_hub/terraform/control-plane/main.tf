@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "./modules/vpc"
+  source = "../modules/vpc"
 
   project_name       = var.project_name
   environment        = var.environment
@@ -11,7 +11,7 @@ module "vpc" {
 }
 
 module "iam_identity" {
-  source = "./modules/iam_identity"
+  source = "../modules/iam_identity"
 
   project_name = var.project_name
   environment  = var.environment
@@ -20,7 +20,7 @@ module "iam_identity" {
 }
 
 module "eks" {
-  source = "./modules/eks"
+  source = "../modules/eks"
 
   project_name       = var.project_name
   environment        = var.environment
