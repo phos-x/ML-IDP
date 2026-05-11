@@ -44,10 +44,13 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        run: terraform init
+        run: |
+          cd control-plane \
+          terraform init
 
       - name: Terraform Plan
         run: |
+          cd control-plane \
           terraform plan \
             -var="github_token=${{ secrets.PLATFORM_GITHUB_TOKEN }}" \
             -var="github_repo_url=https://github.com/${{ github.repository }}" \
@@ -56,7 +59,9 @@ jobs:
       - name: Terraform Apply
         id: apply
         if: github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve tfplan
+        run: |
+          cd control-plane \
+          terraform apply -auto-approve tfplan
 
       - name: FinOps - Post-Deployment Summary
         if: ${{ steps.apply.outputs }} == 'success' && github.ref == 'refs/heads/main'
