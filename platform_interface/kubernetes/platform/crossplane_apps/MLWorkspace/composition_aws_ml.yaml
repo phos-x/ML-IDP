@@ -1,0 +1,48 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: aws-sagemaker-workspace
+  labels:
+    provider: aws
+    type: ml-workspace
+spec:
+  compositeTypeRef:
+    apiVersion: platform.myorg.io/v1alpha1
+    kind: XMLWorkspace
+  resources:
+    - name: s3-training-bucket
+      base:
+        apiVersion: s3.aws.upbound.io/v1beta1
+        kind: Bucket
+        spec:
+          forProvider:
+            region: eu-west-2
+            forceDestroy: true
+      patches:
+        - fromFieldPath: spec.teamName
+          toFieldPath: metadata.name
+          transforms:
+            - type: string
+              string:
+                fmt: "ml-training-data-%s"
+                
+    - name: sagemaker-domain
+      base:
+        apiVersion: sagemaker.aws.upbound.io/v1beta1
+        kind: Domain
+        spec:
+          forProvider:
+            authMode: IAM
+            appNetworkAccessType: VpcOnly 
+            defaultUserSettings:
+              - executionRoleSelector:
+                  matchLabels:
+                    role: sagemaker-execution
+            domainName: "placeholder"
+      patches:
+        - fromFieldPath: spec.teamName
+          toFieldPath: spec.forProvider.domainName
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-ml-domain"

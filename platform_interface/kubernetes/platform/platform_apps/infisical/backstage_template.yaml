@@ -1,0 +1,19 @@
+# Example of what you will commit later for Backstage
+apiVersion: secrets.infisical.com/v1alpha1
+kind: InfisicalSecret
+metadata:
+  name: backstage-db-credentials
+  namespace: backstage-system
+spec:
+  hostAPI: https://app.infisical.com/api
+  resyncInterval: 10 # Auto-rotate the K8s secret if it changes in Infisical!
+  authentication:
+    universalAuth:
+      secretsScope:
+        projectSlug: "your-project-slug"
+        envSlug: "prod"
+        secretsPath: "/backstage"
+      credentialsRef:
+        secretName: infisical-machine-identity # The one token you manually inject once
+  managedSecretReference:
+    secretName: backstage-db-secrets # The name of the native K8s secret it will generate

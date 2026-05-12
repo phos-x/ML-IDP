@@ -1,0 +1,18 @@
+# Strict eBPF Routing (No kube-proxy)
+kubeProxyReplacement: true
+bpf:
+  masquerade: true
+
+encryption:
+  enabled: true
+  type: wireguard
+  nodeEncryption: false # Encrypts pod-to-pod, node-to-node requires extra AWS config
+
+# IPAM (Integrates with our AWS VPC subnets)
+ipam:
+  mode: eni
+eni:
+  enabled: true
+
+tolerations:
+  - operator: Exists

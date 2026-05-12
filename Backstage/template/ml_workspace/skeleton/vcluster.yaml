@@ -1,0 +1,32 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: vcluster-${{ values.teamName }}
+  namespace: host-${{ values.teamName }}
+spec:
+  chart:
+    spec:
+      chart: vcluster
+      repo: https://charts.loft.sh
+      version: 0.35.0-alpha.3
+  values:
+    isolation:
+      enabled: true
+      podSecurityStandard: baseline
+    
+    vcluster:
+      extraArgs:
+        - "--oidc-issuer-url=https://github.com" 
+        - "--oidc-client-id=your-platform-client-id"
+        - "--oidc-username-claim=email"
+        - "--oidc-groups-claim=groups"
+    
+    rbac:
+      clusterRole:
+        create: true
+      roleBindings:
+        - name: team-admin-binding
+          clusterRole: cluster-admin
+          subjects:
+            - kind: Group
+              name: "oidc-group:${{ values.teamName }}"

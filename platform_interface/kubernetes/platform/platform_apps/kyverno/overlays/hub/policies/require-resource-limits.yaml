@@ -1,0 +1,37 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-resource-requests-limits
+  annotations:
+    policies.kyverno.io/title: Require Resource Requests and Limits
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/description: >-
+      To ensure fair-share of cluster resources, every container must explicitly 
+      declare its CPU and Memory requests and limits.
+spec:
+  validationFailureAction: Audit
+  background: true
+  rules:
+    - name: validate-resource-definitions
+      match:
+        any:
+        - resources:
+            kinds:
+              - Pod
+      exclude:
+        any:
+        - resources:
+            namespaces:
+              - kube-system
+      validate:
+        message: "Resource Fair-Share Violation: All containers must define CPU and Memory 'requests' and 'limits'."
+        pattern:
+          spec:
+            containers:
+              - resources:
+                  requests:
+                    memory: "?*"
+                    cpu: "?*"
+                  limits:
+                    memory: "?*"
+                    cpu: "?*"

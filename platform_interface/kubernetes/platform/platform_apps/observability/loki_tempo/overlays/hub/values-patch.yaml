@@ -1,0 +1,21 @@
+loki:
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 3
+  storage:
+    type: s3
+    s3:
+      region: eu-west-2
+      bucketnames: platform-logs-archive
+  read:
+    nodeSelector: { platform-role: system }
+  write:
+    nodeSelector: { platform-role: system }
+
+tempo:
+  storage:
+    trace:
+      backend: s3
+      s3:
+        bucket: platform-traces-archive
+        region: eu-west-2

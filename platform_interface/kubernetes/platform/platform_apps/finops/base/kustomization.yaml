@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+  - name: opencost
+    repo: https://opencost.github.io/opencost-helm-chart
+    version: 1.9.8 # Strict version pinning for 2026 standards
+    releaseName: opencost
+    namespace: finops-system

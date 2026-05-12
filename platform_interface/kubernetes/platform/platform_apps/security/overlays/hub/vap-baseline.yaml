@@ -1,0 +1,45 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: platform-baseline-guardrails
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups:   [""]
+      apiVersions: ["v1"]
+      operations:  ["CREATE", "UPDATE"]
+      resources:   ["pods"]
+  validations:
+    - expression: >
+        has(object.metadata.labels) && 
+        'platform.tech/cost-center' in object.metadata.labels && 
+        'platform.tech/team' in object.metadata.labels
+      message: "FinOps Violation: Pods must include 'platform.tech/cost-center' and 'platform.tech/team' labels."
+    
+    - expression: >
+        object.spec.containers.all(c, has(c.resources) && has(c.resources.limits) && has(c.resources.requests))
+      message: "Stability Violation: All containers must explicitly define CPU and Memory requests and limits."
+      
+     expression: >
+        !object.spec.containers.exists(c, has(c.securityContext) && has(c.securityContext.privileged) && c.securityContext.privileged == true)
+      message: "Security Violation: Privileged containers are strictly forbidden on the Hub cluster."
+
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: platform-baseline-binding
+spec:
+  policyName: platform-baseline-guardrails
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: NotIn
+        values: 
+          - kube-system
+          - argocd
+          - observability
+          - crossplane-system

@@ -1,0 +1,26 @@
+# backstage:
+#   image:
+#     registry: 123456789012.dkr.ecr.eu-west-2.amazonaws.com # Your AWS Account ECR
+#     repository: backstage-custom
+#     tag: "latest-sha" 
+#   appConfig:
+#     app:
+#       # baseUrl: https://backstage.myorg.com
+#     backend:
+#       baseUrl: https://backstage.myorg.com
+#       database:
+#         client: pg
+#         connection:
+#           host: ${POSTGRES_HOST}
+#           user: ${POSTGRES_USER}
+#           password: ${POSTGRES_PASSWORD}
+
+#   # Environment variables for the Backstage Pod
+#   extraEnvVarsSecret: backstage-secrets # Contains GitHub Token, DB Passwords
+
+# # We use the Helm chart to spin up a local Postgres DB for the Backstage backend
+# # In a pure production setup, you would use Crossplane to provision an AWS RDS instance instead.
+# postgresql:
+#   enabled: true
+#   auth:
+#     existingSecret: backstage-db-secrets

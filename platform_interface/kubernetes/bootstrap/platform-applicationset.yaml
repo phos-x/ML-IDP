@@ -1,0 +1,60 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform-hub-bootstrap
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - name: cilium
+            path: kubernetes/platform/cilium/overlays/hub
+            namespace: kube-system
+            wave: "1"
+          - name: crossplane
+            path: kubernetes/platform/crossplane/overlays/hub
+            namespace: crossplane-system
+            wave: "2"
+          - name: rds-infrastructure
+            path: kubernetes/platform/rds/overlays/hub
+            namespace: crossplane-system
+            wave: "3" 
+          - name: infisical
+            path: kubernetes/platform/infisical/overlays/hub
+            namespace: infisical-system
+            wave: "4"
+          - name: security-guardrails
+            path: kubernetes/platform/security/overlays/hub
+            namespace: security-system
+            wave: "5"
+          - name: opencost
+            path: kubernetes/platform/finops/overlays/hub
+            namespace: finops-system
+            wave: "6" 
+  template:
+    metadata:
+      name: '{{name}}'
+      annotations:
+        argocd.argoproj.io/sync-wave: '{{wave}}'
+    spec:
+      project: default
+      source:
+        repoURL: 'https://github.com/phos-x/ML-IDP.git'
+        targetRevision: main
+        path: '{{path}}'
+      destination:
+        server: 'https://kubernetes.default.svc'
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true 
+        retry:
+          limit: 5
+          backoff:
+            duration: 10s
+            factor: 2
+            maxDuration: 3m

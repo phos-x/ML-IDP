@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: backstage-portal
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://backstage.github.io/charts'
+    targetRevision: 2.7.0 # Always pin Helm versions
+    chart: backstage
+    helm:
+      valueFiles:
+        - $values/platform_interface/kubernetes/platform/platform_apps/backstage/values.yaml
+  sources:
+    - repoURL: 'https://github.com/phos-x/ML-IDP.git'
+      targetRevision: main
+      ref: values
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: backstage-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

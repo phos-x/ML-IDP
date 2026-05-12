@@ -1,0 +1,17 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: inject-team-label
+spec:
+  rules:
+    - name: inject-team-label-from-namespace
+      match:
+        any:
+        - resources:
+            kinds:
+              - Pod
+      mutate:
+        patchStrategicMerge:
+          metadata:
+            labels:
+              team: "{{request.namespace}}" 

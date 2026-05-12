@@ -1,0 +1,53 @@
+image:
+  repository: ghcr.io/backstage/backstage
+  tag: 1.51.0-next.2
+backend:
+  dynamicPlugins:
+    rootDirectory: /dynamic-plugins-root
+
+extraInitContainers:
+  - name: install-dynamic-plugins
+    image: node:18-alpine
+    command:
+      - /bin/sh
+      - -c
+      - |
+        echo "Downloading plugins..."
+        npm pack @backstage/plugin-kubernetes-backend@latest --pack-destination /dynamic-plugins-root
+        npm pack @roadiehq/scaffolder-backend-argocd@latest --pack-destination /dynamic-plugins-root
+        npm pack @backstage/plugin-scaffolder-backend-module-github@latest --pack-destination /dynamic-plugins-root
+        echo "Plugins ready."
+    volumeMounts:
+      - name: dynamic-plugins
+        mountPath: /dynamic-plugins-root
+
+extraVolumeMounts:
+  - name: dynamic-plugins
+    mountPath: /dynamic-plugins-root
+
+extraVolumes:
+  - name: dynamic-plugins
+    emptyDir: {}
+
+appConfig:
+  dynamicPlugins:
+    frontend:
+      backstage.plugin-kubernetes:
+        mountPoint: entity.page.kubernetes/cards
+    backend:
+      - package: /dynamic-plugins-root/backstage-plugin-kubernetes-backend-X.X.X.tgz
+        disabled: false
+      - package: /dynamic-plugins-root/roadiehq-scaffolder-backend-argocd-X.X.X.tgz
+        disabled: false
+
+  app:
+    baseUrl: https://backstage.myorg.com
+  backend:
+    baseUrl: https://backstage.myorg.com
+    database:
+      client: pg
+      connection:
+        host: ${POSTGRES_HOST}
+        port: ${POSTGRES_PORT}
+        user: ${POSTGRES_USER}
+        password: ${POSTGRES_PASSWORD}

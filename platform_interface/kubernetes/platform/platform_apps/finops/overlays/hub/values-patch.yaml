@@ -1,0 +1,29 @@
+opencost:
+  exporter:
+    defaultClusterId: "platform-hub-eu-west-2"
+  customPricing:
+    enabled: true
+    provider: aws \
+  prometheus:
+    external:
+      enabled: true
+      url: "http://prometheus-operated.observability.svc.cluster.local:9090"
+
+ui:
+  enabled: true
+  ingress:
+    enabled: true
+    className: alb
+    hosts:
+      - host: finops.myorg.com
+        paths:
+          - path: /
+            pathType: Prefix
+
+nodeSelector:
+  platform-role: system
+tolerations:
+  - key: "CriticalAddonsOnly"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"

@@ -1,0 +1,9 @@
+# Backstage generates this -> ArgoCD syncs it -> Crossplane builds AWS infra
+apiVersion: platform.myorg.io/v1alpha1
+kind: MLWorkspace
+metadata:
+  name: stem-ml-team-workspace
+  namespace: host-fraud-team
+spec:
+  teamName: stem-ml-team
+  enableSageMaker: true

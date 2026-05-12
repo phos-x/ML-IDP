@@ -1,0 +1,58 @@
+postgresql:
+  enabled: false
+
+env:
+  - name: DB_HOST
+    valueFrom:
+      secretKeyRef:
+        name: infisical-postgres-conn
+        key: endpoint  
+  - name: DB_PORT
+    valueFrom:
+      secretKeyRef:
+        name: infisical-postgres-conn
+        key: port
+  - name: DB_USER
+    valueFrom:
+      secretKeyRef:
+        name: infisical-postgres-conn
+        key: username
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: infisical-postgres-conn
+        key: password
+  - name: DB_NAME
+    value: postgres       
+
+redis:
+  enabled: true
+  architecture: standalone
+
+nodeSelector:
+  platform-role: system
+tolerations:
+  - key: "CriticalAddonsOnly"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+
+controllerManager:
+  manager:
+    nodeSelector:
+      platform-role: system
+    tolerations:
+      - key: "CriticalAddonsOnly"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+    
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+  replicas: 2

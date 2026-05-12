@@ -1,0 +1,28 @@
+prometheus:
+  prometheusSpec:
+    nodeSelector:
+      platform-role: system
+    tolerations:
+      - key: "CriticalAddonsOnly"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+    
+    thanos:
+      image: quay.io/thanos/thanos:v0.41.0
+      objectStorageConfig:
+        name: thanos-s3-credentials 
+        key: objstore.yml
+
+    retention: 2h 
+    serviceMonitorSelectorNilUsesHelmValues: false
+
+grafana:
+  enabled: true
+  admin:
+    existingSecret: "grafana-admin-credentials"
+    userKey: admin-user
+    passwordKey: admin-password
+    
+  nodeSelector:
+    platform-role: system
