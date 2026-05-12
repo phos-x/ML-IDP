@@ -53,7 +53,7 @@ jobs:
           cd control-plane && \
           terraform plan \
             -var="github_token=${{ secrets.PLATFORM_GITHUB_TOKEN }}" \
-            -var="github_repo_url=https://github.com/${{ github.repository }}" \
+            -var="github_repo=phos-x/ML-IDP" \
             -out=tfplan
 
       - name: Terraform Apply
