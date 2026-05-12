@@ -10,10 +10,6 @@ output "eks_cluster_endpoint" {
   value = module.eks.cluster_endpoint
 }
 
-output "github_actions_role_arn" {
-  value = module.iam_identity.github_actions_role_arn
-}
-
 output "crossplane_role_arn" {
   value = module.iam_identity.crossplane_role_arn
 }

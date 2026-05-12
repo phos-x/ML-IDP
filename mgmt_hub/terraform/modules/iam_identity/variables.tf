@@ -15,3 +15,14 @@ variable "github_repo" {
   description = "The GitHub Repository name"
   type        = string
 }
+
+variable "aws_region" {
+  type    = string
+  default = "eu-west-2"
+}
+
+variable "account_id" {
+  type    = string
+  sensitive   = true
+}
+
