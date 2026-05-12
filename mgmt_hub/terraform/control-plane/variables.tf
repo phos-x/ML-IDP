@@ -3,6 +3,12 @@ variable "aws_region" {
   default = "eu-west-2"
 }
 
+variable "github_token" {
+  description = "GitHub Personal Access Token used by ArgoCD to read the private platform repository"
+  type        = string
+  sensitive   = true
+}
+
 variable "project_name" {
   type    = string
   default = "ml-platform"
