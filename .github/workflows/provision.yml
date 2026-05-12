@@ -53,6 +53,7 @@ jobs:
           cd control-plane && \
           terraform plan \
             -var="github_token=${{ secrets.PLATFORM_GITHUB_TOKEN }}" \
+            -var="account_id=${{ secrets.AWS_ACCOUNT_ID }}" \
             -var="github_repo=phos-x/ML-IDP" \
             -out=tfplan
 
