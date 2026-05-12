@@ -9,6 +9,12 @@ variable "github_token" {
   sensitive   = true
 }
 
+variable "account_id" {
+  description = "account id value"
+  type        = string
+  sensitive   = true
+}
+
 variable "project_name" {
   type    = string
   default = "ml-platform"

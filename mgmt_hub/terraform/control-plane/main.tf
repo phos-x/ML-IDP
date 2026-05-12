@@ -17,6 +17,7 @@ module "iam_identity" {
   environment  = var.environment
   github_org   = var.github_org
   github_repo  = var.github_repo
+  account_id   = var.account_id
 }
 
 module "eks" {
