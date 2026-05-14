@@ -50,8 +50,7 @@ jobs:
           terraform destroy -auto-approve \
             -var="github_token=${{ secrets.PLATFORM_GITHUB_TOKEN }}" \
             -var="account_id=${{ secrets.AWS_ACCOUNT_ID }}" \
-            -var="github_repo=phos-x/ML-IDP" \
-            -out=tfplan
+            -var="github_repo=phos-x/ML-IDP"
 
       - name: Terraform Init
         run: |
