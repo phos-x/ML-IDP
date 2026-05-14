@@ -43,6 +43,16 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Destroy Resources
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          cd control-plane && \
+          terraform destroy -auto-approve \
+            -var="github_token=${{ secrets.PLATFORM_GITHUB_TOKEN }}" \
+            -var="account_id=${{ secrets.AWS_ACCOUNT_ID }}" \
+            -var="github_repo=phos-x/ML-IDP" \
+            -out=tfplan
+
       - name: Terraform Init
         run: |
           cd control-plane && \
@@ -51,11 +61,7 @@ jobs:
       - name: Terraform Plan
         run: |
           cd control-plane && \
-          terraform plan \
-            -var="github_token=${{ secrets.PLATFORM_GITHUB_TOKEN }}" \
-            -var="account_id=${{ secrets.AWS_ACCOUNT_ID }}" \
-            -var="github_repo=phos-x/ML-IDP" \
-            -out=tfplan
+          terraform plan -out=tfplan
 
       - name: Terraform Apply
         id: apply
