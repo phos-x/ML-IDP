@@ -56,11 +56,15 @@ jobs:
             -var="github_token=${{ secrets.PLATFORM_GITHUB_TOKEN }}" \
             -var="account_id=${{ secrets.AWS_ACCOUNT_ID }}" \
             -var="github_repo=phos-x/ML-IDP"
-            
+
       - name: Terraform Plan
         run: |
           cd control-plane && \
-          terraform plan -out=tfplan
+          terraform plan \
+            -var="github_token=${{ secrets.PLATFORM_GITHUB_TOKEN }}" \
+            -var="account_id=${{ secrets.AWS_ACCOUNT_ID }}" \
+            -var="github_repo=phos-x/ML-IDP" \
+            -out=tfplan
 
       - name: Terraform Apply
         id: apply
